@@ -34,7 +34,24 @@
 		var options = $.extend(defaults, options); 
 		
 		function calculate(obj){
-			var count = $(obj).val().length;
+			/* line break counting fix
+			*
+			* HTTP spec insists that newlines be represented as \r\n
+			* jQuery, only counts \n, thus as 1 character
+			*
+			* Modification based on the following conversation:
+			* http://stackoverflow.com/questions/10030921/chrome-counts-characters-wrong-in-textarea-with-maxlength-attribute
+			*/
+			var input = $(obj).val();
+			
+			var newLines = input.match(/(\r\n|\n|\r)/g);
+			
+			var addition = 0;
+			if (newLines != null) {
+				addition = newLines.length;
+			}
+			
+			var count = input.length + addition;
 			var available = options.allowed - count;
 			if(available <= options.warning && available >= 0){
 				$(obj).next().addClass(options.cssWarning);
